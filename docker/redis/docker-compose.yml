@@ -1,0 +1,8 @@
+redis:
+ image: redis
+ restart: always
+ volumes:
+  - ./storage/redis/data:/data
+ ports:
+  - 6379:6379
+

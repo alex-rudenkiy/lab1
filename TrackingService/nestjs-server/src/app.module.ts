@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RedisModule } from 'nestjs-redis';
 
 @Module({
-  imports: [],
+  imports: [
+    RedisModule.register({
+      url: 'redis://127.0.0.1:6379/4',
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
