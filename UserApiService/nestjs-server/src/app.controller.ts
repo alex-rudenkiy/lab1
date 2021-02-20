@@ -3,27 +3,38 @@ import { AppService } from './app.service';
 import { User } from './database/entity/user/user.entity';
 import { UsersService } from './database/entity/user/users.service';
 import { tryCatch } from 'rxjs/internal-compatibility';
+import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger";
 
-class CreateUserDto {
-  login: string;
-  password: string;
-  payload: string;
+export class CreateUserDto {
+  @ApiProperty({example:"Mike"})
+  readonly login: string;
+  @ApiProperty({example:"qwerty"})
+  readonly password: string;
+  @ApiProperty()
+  readonly payload: string;
 }
 
 class DeleteUserByIDDto {
-  id: number;
+  @ApiProperty({example:1})
+  readonly id: number;
 }
 
 class FindUserByIDDto {
-  id: number;
+  @ApiProperty({example:1})
+  readonly id: number;
 }
 
 class UpdateUserByIDDto {
-  id: number;
-  enabled: boolean;
-  login: string;
-  password: string;
-  payload: string;
+  @ApiProperty({example:1})
+  readonly id: number;
+  @ApiProperty({example:true})
+  readonly enabled: boolean;
+  @ApiProperty({example:"John"})
+  readonly login: string;
+  @ApiProperty({example:"123"})
+  readonly password: string;
+  @ApiProperty()
+  readonly payload: string;
 }
 
 @Controller()
@@ -34,6 +45,7 @@ export class AppController {
   ) {}
 
   @Post('/createUser')
+  @ApiOperation({ summary: 'Создание пользователя' })
   createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     console.log(createUserDto);
     const user = new User();
@@ -44,11 +56,13 @@ export class AppController {
   }
 
   @Post('/findUserByID')
+  @ApiOperation({ summary: 'Поиск пользователя по ID' })
   findUserByID(@Body() findUserByIDDto: FindUserByIDDto): Promise<User> {
     return this.userService.findOne(String(findUserByIDDto.id));
   }
 
   @Post('/updateUserByID')
+  @ApiOperation({ summary: 'Обновление даннных пользователя по ID', description: "Необходимо, чтобы все поля были заполненны" })
   updateUserByID(@Body() updateUserByIDDto: UpdateUserByIDDto): Promise<User> {
     return this.userService
       .findOne(String(updateUserByIDDto.id))
@@ -63,6 +77,7 @@ export class AppController {
   }
 
   @Post('/deleteUserByID')
+  @ApiOperation({ summary: 'Удаление пользователя по ID' })
   deleteUserByID(@Body() deleteUserByIDDto: DeleteUserByIDDto): Promise<void> {
     return this.userService.remove(String(deleteUserByIDDto.id));
   }
