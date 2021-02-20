@@ -35,6 +35,7 @@ export class AppController {
 
   @Post('/createUser')
   createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+    console.log(createUserDto);
     const user = new User();
     user.login = createUserDto.login;
     user.password = createUserDto.password;

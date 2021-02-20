@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { IsMobilePhone, IsNotEmpty, IsPhoneNumber } from 'class-validator';
+import axios from 'axios';
+import {Console} from "inspector";
 
 class RegistrationDto {
   @IsNotEmpty()
@@ -17,6 +19,22 @@ export class AppController {
 
   @Post('/registration')
   registration(@Body() registrationDto: RegistrationDto): string {
+    // Make a request for a user with a given ID
+    console.log(JSON.stringify(registrationDto));
+    axios
+      .post('http://localhost:4001/createUser', registrationDto)
+      .then(function (response) {
+        // handle success
+        //console.log(response);
+      })
+      .catch(function (error) {
+        // handle error
+        //console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
+
     return registrationDto.name;
   }
 
