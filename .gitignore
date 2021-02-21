@@ -2,3 +2,4 @@
 \dist
 \test
 \.idea
+docker/redis/storage/redis/data/dump.rdb

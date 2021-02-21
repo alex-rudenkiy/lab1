@@ -14,7 +14,7 @@ import { Connection } from 'typeorm';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'test',
+      password: 'pass',
       database: 'postgres',
       entities: [User],
       synchronize: true,

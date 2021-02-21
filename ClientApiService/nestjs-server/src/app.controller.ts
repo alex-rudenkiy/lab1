@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { IsMobilePhone, IsNotEmpty, IsPhoneNumber } from 'class-validator';
 import axios from 'axios';
-import {Console} from "inspector";
+import { Console } from 'inspector';
 
 class RegistrationDto {
   @IsNotEmpty()
