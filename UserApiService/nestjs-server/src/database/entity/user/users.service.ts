@@ -15,6 +15,10 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
+  find(condition): Promise<User[]> {
+    return this.usersRepository.find(condition);
+  }
+
   findOne(id: string): Promise<User> {
     return this.usersRepository.findOne(id);
   }

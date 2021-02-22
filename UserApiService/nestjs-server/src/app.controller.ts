@@ -6,12 +6,14 @@ import { tryCatch } from 'rxjs/internal-compatibility';
 import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger";
 
 export class CreateUserDto {
-  @ApiProperty({example:"Mike"})
+  @ApiProperty({example:"Mike", nullable: false})
   readonly login: string;
-  @ApiProperty({example:"qwerty"})
+  @ApiProperty({example:"qwerty", nullable: false})
   readonly password: string;
-  @ApiProperty()
+  @ApiProperty({default:""})
   readonly payload: string;
+  @ApiProperty({nullable: false})
+  readonly role: string;
 }
 
 class DeleteUserByIDDto {
@@ -22,6 +24,14 @@ class DeleteUserByIDDto {
 class FindUserByIDDto {
   @ApiProperty({example:1})
   readonly id: number;
+}
+
+class FindUserByLoginPasswordDto {
+  @ApiProperty({example:"bob"})
+  readonly login: string;
+  @ApiProperty({example:"123"})
+  readonly password: string;
+
 }
 
 class UpdateUserByIDDto {
@@ -52,6 +62,7 @@ export class AppController {
     user.login = createUserDto.login;
     user.password = createUserDto.password;
     user.payload = createUserDto.payload;
+    user.role = createUserDto.role;
     return this.userService.save(user);
   }
 
@@ -60,6 +71,14 @@ export class AppController {
   findUserByID(@Body() findUserByIDDto: FindUserByIDDto): Promise<User> {
     return this.userService.findOne(String(findUserByIDDto.id));
   }
+
+  @Post('/findUserByLoginPassword')
+  @ApiOperation({ summary: 'Поиск пользователя по логину и паролю' })
+  findUserByLoginPassword(@Body() findUserByLoginPasswordDto: FindUserByLoginPasswordDto): Promise<User[]> {
+    return this.userService.find({login: findUserByLoginPasswordDto.login, password: findUserByLoginPasswordDto.password});
+  }
+
+
 
   @Post('/updateUserByID')
   @ApiOperation({ summary: 'Обновление даннных пользователя по ID', description: "Необходимо, чтобы все поля были заполненны" })

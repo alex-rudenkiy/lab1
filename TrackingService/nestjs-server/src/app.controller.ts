@@ -42,12 +42,10 @@ export class AppController {
     );
     this.client.set(
       String(setPositionDto.trackerID),
-      JSON.stringify(
-        JSON.stringify({
-          ...setPositionDto.position,
-          ...{ updatedAt: new Date() },
-        }),
-      ),
+      JSON.stringify({
+        ...setPositionDto.position,
+        ...{ updatedAt: new Date() },
+      }),
     );
 
     return 'ok';
@@ -58,5 +56,28 @@ export class AppController {
     return this.client
       .get(String(getPositionDto.trackerID))
       .then((value) => JSON.parse(value));
+  }
+
+  @Post('/getAllActualPositions')
+  async getAllActualPositions(): Promise<any> {
+    const result = [];
+    //await this.client.del('123');
+    const data = await this.client.keys('*');
+    //console.log(data);
+    for (const k in data) {
+      const t = await this.client.get(String(data[k]));
+
+      if (Math.abs((new Date().getTime() - new Date(JSON.parse(t).updatedAt).getTime()) / 1000) < 50000) {
+        result.push({ trackerID: Number(data[k]), ...JSON.parse(t) });
+      }
+    }
+
+    //console.log(result);
+    return result;
+  }
+
+  @Get('/flushall')
+  flushall(): any{
+    return this.client.flushall();
   }
 }

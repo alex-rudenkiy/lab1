@@ -33,6 +33,6 @@ export class Order {
   @Column()
   cost: number;
 
-  @Column({ default: false })
+  @Column({ default: true })
   enabled: boolean;
 }

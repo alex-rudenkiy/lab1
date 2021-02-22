@@ -15,6 +15,10 @@ export class OrderService {
     return this.orderRepository.find();
   }
 
+  find(options): Promise<Order[]>{
+    return this.orderRepository.find(options);
+  }
+
   findOne(id: string): Promise<Order> {
     return this.orderRepository.findOne(id);
   }
