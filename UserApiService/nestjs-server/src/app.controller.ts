@@ -7,13 +7,15 @@ import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger";
 
 export class CreateUserDto {
   @ApiProperty({example:"Mike", nullable: false})
-  readonly login: string;
+  readonly name: string;
   @ApiProperty({example:"qwerty", nullable: false})
   readonly password: string;
   @ApiProperty({default:""})
   readonly payload: string;
   @ApiProperty({nullable: false})
   readonly role: string;
+  @ApiProperty({example:"123"})
+  readonly mobile: string;
 }
 
 class DeleteUserByIDDto {
@@ -26,12 +28,11 @@ class FindUserByIDDto {
   readonly id: number;
 }
 
-class FindUserByLoginPasswordDto {
-  @ApiProperty({example:"bob"})
-  readonly login: string;
+class FindUserByPhonePasswordDto {
+  @ApiProperty({example:"88005553535"})
+  readonly mobile: string;
   @ApiProperty({example:"123"})
   readonly password: string;
-
 }
 
 class UpdateUserByIDDto {
@@ -40,12 +41,15 @@ class UpdateUserByIDDto {
   @ApiProperty({example:true})
   readonly enabled: boolean;
   @ApiProperty({example:"John"})
-  readonly login: string;
+  readonly name: string;
   @ApiProperty({example:"123"})
   readonly password: string;
+  @ApiProperty({example:"123"})
+  readonly mobile: string;
   @ApiProperty()
   readonly payload: string;
 }
+
 
 @Controller()
 export class AppController {
@@ -59,9 +63,10 @@ export class AppController {
   createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     console.log(createUserDto);
     const user = new User();
-    user.login = createUserDto.login;
+    user.name = createUserDto.name;
     user.password = createUserDto.password;
     user.payload = createUserDto.payload;
+    user.mobile = createUserDto.mobile;
     user.role = createUserDto.role;
     return this.userService.save(user);
   }
@@ -72,10 +77,11 @@ export class AppController {
     return this.userService.findOne(String(findUserByIDDto.id));
   }
 
-  @Post('/findUserByLoginPassword')
-  @ApiOperation({ summary: 'Поиск пользователя по логину и паролю' })
-  findUserByLoginPassword(@Body() findUserByLoginPasswordDto: FindUserByLoginPasswordDto): Promise<User[]> {
-    return this.userService.find({login: findUserByLoginPasswordDto.login, password: findUserByLoginPasswordDto.password});
+  @Post('/findUserByPhonePassword')
+  @ApiOperation({ summary: 'Поиск пользователя по мобильному номеру и паролю' })
+  findUserByPhonePassword(@Body() findUserByPhonePasswordDto: FindUserByPhonePasswordDto): Promise<User[]> {
+    console.log(findUserByPhonePasswordDto);
+    return this.userService.find({mobile: findUserByPhonePasswordDto.mobile, password: findUserByPhonePasswordDto.password});
   }
 
 
@@ -86,7 +92,7 @@ export class AppController {
     return this.userService
       .findOne(String(updateUserByIDDto.id))
       .then((u) => {
-        u.login = updateUserByIDDto.login;
+        u.name = updateUserByIDDto.name;
         u.password = updateUserByIDDto.password;
         u.payload = updateUserByIDDto.payload;
         u.enabled = updateUserByIDDto.enabled;

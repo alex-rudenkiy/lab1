@@ -18,11 +18,11 @@ class CreateOrderDto {
 }
 
 class EnableOrderByIDDto {
-  id: number;
+  orderID: number;
 }
 
 class DisableOrderByIDDto {
-  id: number;
+  orderID: number;
 }
 
 class FindOrderByDriverIDDto {
@@ -92,7 +92,7 @@ export class AppController {
     @Body() enableOrderByIDDto: EnableOrderByIDDto,
   ): Promise<Order> {
     return this.orderService
-      .findOne(String(enableOrderByIDDto.id))
+      .findOne(String(enableOrderByIDDto.orderID))
       .then((o) => {
         o['enabled'] = true;
         return this.orderService.save(o).then((value) => {
@@ -112,7 +112,7 @@ export class AppController {
     @Body() disableOrderByIDDto: DisableOrderByIDDto,
   ): Promise<Order> {
     return this.orderService
-      .findOne(String(disableOrderByIDDto.id))
+      .findOne(String(disableOrderByIDDto.orderID))
       .then((o) => {
         o['enabled'] = false;
         return this.orderService.save(o).then((value) => {
@@ -127,12 +127,13 @@ export class AppController {
       });
   }
 
-  @Post('/findOrderByDriverID')
+  @Post('/findActualOrderByDriverID')
   findOrderByDriverID(
     @Body() findOrderByDriverIDDto: FindOrderByDriverIDDto,
   ): Promise<Order[]> {
     return this.orderService.find({
       driver: String(findOrderByDriverIDDto.driverID),
+      enabled: true,
     });
   }
 
@@ -142,6 +143,7 @@ export class AppController {
   ): Promise<Order[]> {
     return this.orderService.find({
       driver: String(findOrderByPassengerIDDto.passengerID),
+      enabled: true,
     });
   }
 }

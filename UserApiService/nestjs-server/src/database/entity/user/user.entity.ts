@@ -9,7 +9,10 @@ export class User {
   role: string;
 
   @Column({ nullable: false })
-  login: string;
+  name: string;
+
+  @Column({ nullable: false })
+  mobile: string;
 
   @Column({ nullable: false })
   password: string;

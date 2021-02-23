@@ -7,6 +7,7 @@ import { Console } from 'inspector';
 class RegistrationDto {
   @IsNotEmpty()
   login: string;
+  @IsNotEmpty()
   @IsMobilePhone('ru-RU')
   mobile: string;
   @IsNotEmpty()
@@ -15,7 +16,7 @@ class RegistrationDto {
 
 class AuthenticationDto {
   @IsMobilePhone('ru-RU')
-  login: string;
+  mobile: string;
   @IsNotEmpty()
   password: string;
 }
@@ -40,7 +41,9 @@ export class AppController {
     return axios
       .post('http://localhost:4001/createUser', {
         ...registrationDto,
-        ...{ role: 'passenger' },
+        ...{
+          role: 'passenger',
+        },
       })
       .then((v) => JSON.stringify(v.data));
   }
@@ -50,7 +53,7 @@ export class AppController {
     @Body() authenticationDto: AuthenticationDto,
   ): Promise<string> {
     return axios
-      .post('http://localhost:4001/findUserByLoginPassword', {
+      .post('http://localhost:4001/findUserByPhonePassword', {
         ...authenticationDto,
         ...{ role: 'passenger' },
       })

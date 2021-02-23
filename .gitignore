@@ -5,3 +5,5 @@
 docker/redis/storage/redis/data/dump.rdb
 OrderService/nestjs-server/src/app.module.ts
 UserApiService/nestjs-server/src/app.module.ts
+UserApiService/nestjs-server/src/app.module.ts
+OrderService/nestjs-server/src/app.module.ts
