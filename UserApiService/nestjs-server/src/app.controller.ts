@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {Body, Controller, Get, HttpException, HttpStatus, Post} from '@nestjs/common';
 import { AppService } from './app.service';
 import { User } from './database/entity/user/user.entity';
 import { UsersService } from './database/entity/user/users.service';
 import { tryCatch } from 'rxjs/internal-compatibility';
 import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger";
+import axios from 'axios';
 
 export class CreateUserDto {
   @ApiProperty({example:"Mike", nullable: false})
@@ -28,11 +29,13 @@ class FindUserByIDDto {
   readonly id: number;
 }
 
-class FindUserByPhonePasswordDto {
+class FindUserByPhonePasswordRoleDto {
   @ApiProperty({example:"88005553535"})
   readonly mobile: string;
   @ApiProperty({example:"123"})
   readonly password: string;
+  @ApiProperty({example:"Passenger", enum: ['Driver', 'Passenger']})
+  readonly role: string;
 }
 
 class UpdateUserByIDDto {
@@ -50,6 +53,16 @@ class UpdateUserByIDDto {
   readonly payload: string;
 }
 
+
+class findDriverByIDDto {
+  @ApiProperty({example:1})
+  readonly id: number;
+}
+
+class FindPassengerByIDDto {
+  @ApiProperty({example:1})
+  readonly id: number;
+}
 
 @Controller()
 export class AppController {
@@ -77,11 +90,42 @@ export class AppController {
     return this.userService.findOne(String(findUserByIDDto.id));
   }
 
-  @Post('/findUserByPhonePassword')
+  @Post('/findPassengerByID')
+  @ApiOperation({summary: 'Поиск пассажира по ID'})
+  async findPassengerByID(@Body() findPassengerByIDDto: FindPassengerByIDDto): Promise<User> {
+
+
+    let result = (await this.userService.find({id: String(findPassengerByIDDto.id), role: "passenger"})).pop();
+
+    return result;
+  }
+
+  @Post('/findDriverByID')
+  @ApiOperation({summary: 'Поиск водителя по ID'})
+  async findDriverByID(@Body() findDriverByIDDto: findDriverByIDDto): Promise<User> {
+
+    const f = (
+        await axios.post('http://localhost:4004/findOrderByParams', {
+          driver: findDriverByIDDto.id,
+          enabled: true
+        })
+    ).data;
+
+
+
+    console.log(await this.userService.find({id: String(findDriverByIDDto.id), role: "driver"}).then(r => r.pop()));
+
+    let result = (await this.userService.find({id: String(findDriverByIDDto.id), role: "driver"})).pop();
+    result['isFree'] = f.length==0?true:false//Свободен ли водитель
+
+    return result;
+  }
+
+  @Post('/findUserByPhonePasswordRole')
   @ApiOperation({ summary: 'Поиск пользователя по мобильному номеру и паролю' })
-  findUserByPhonePassword(@Body() findUserByPhonePasswordDto: FindUserByPhonePasswordDto): Promise<User[]> {
-    console.log(findUserByPhonePasswordDto);
-    return this.userService.find({mobile: findUserByPhonePasswordDto.mobile, password: findUserByPhonePasswordDto.password});
+  findUserByPhonePasswordRole(@Body() findUserByPhonePasswordRoleDto: FindUserByPhonePasswordRoleDto): Promise<User[]> {
+    console.log(findUserByPhonePasswordRoleDto);
+    return this.userService.find({mobile: findUserByPhonePasswordRoleDto.mobile, password: findUserByPhonePasswordRoleDto.password, role: findUserByPhonePasswordRoleDto.role});
   }
 
 

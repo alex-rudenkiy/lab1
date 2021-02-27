@@ -33,6 +33,10 @@ class FindOrderByPassengerIDDto {
   passengerID: number;
 }
 
+class FindActualOrderByIDDto {
+  orderID: number;
+}
+
 @Controller()
 export class AppController {
   constructor(
@@ -111,18 +115,13 @@ export class AppController {
   disableOrderByID(
     @Body() disableOrderByIDDto: DisableOrderByIDDto,
   ): Promise<Order> {
+    console.log(disableOrderByIDDto);
     return this.orderService
       .findOne(String(disableOrderByIDDto.orderID))
       .then((o) => {
         o['enabled'] = false;
         return this.orderService.save(o).then((value) => {
-          return {
-            ...value,
-            ...{
-              fromPosition: JSON.parse(value.fromPosition),
-              toPosition: JSON.parse(value.toPosition),
-            },
-          };
+          return value;
         });
       });
   }
@@ -135,6 +134,11 @@ export class AppController {
       driver: String(findOrderByDriverIDDto.driverID),
       enabled: true,
     });
+  }
+
+  @Post('/findOrderByParams')
+  async findOrderByParams(@Body() params): Promise<Order> {
+    return (await this.orderService.find({ where: params, relations: ['passenger', 'driver'] })).pop();
   }
 
   @Post('/findOrderByPassengerID')

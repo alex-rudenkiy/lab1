@@ -12,6 +12,9 @@ export class User {
   name: string;
 
   @Column({ nullable: false })
+  mobile: string;
+
+  @Column({ nullable: false })
   password: string;
 
   @Column({ default: '' })
