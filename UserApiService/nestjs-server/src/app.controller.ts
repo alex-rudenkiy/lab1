@@ -7,60 +7,60 @@ import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger";
 import axios from 'axios';
 
 export class CreateUserDto {
-  @ApiProperty({example:"Mike", nullable: false})
+  @ApiProperty({example:"Mike", nullable: false, required: true, title: "Имя пользователя"})
   readonly name: string;
-  @ApiProperty({example:"qwerty", nullable: false})
+  @ApiProperty({example:"qwerty", nullable: false, required: true, title: "Пароль пользователя"})
   readonly password: string;
-  @ApiProperty({default:""})
+  @ApiProperty({default:"", required: false, title: "Дополнительные данные(опционально)"})
   readonly payload: string;
-  @ApiProperty({nullable: false})
+  @ApiProperty({example:"passenger", enum: ['driver', 'passenger'], nullable: false, required: true, title: "Роль пользователя"})
   readonly role: string;
-  @ApiProperty({example:"123"})
+  @ApiProperty({example:"89867716516", required: true, title: "Мобильный номер пользователя"})
   readonly mobile: string;
 }
 
 class DeleteUserByIDDto {
-  @ApiProperty({example:1})
+  @ApiProperty({example:1, nullable: false, required: true, title: "Уникальный идентификатор пользователя"})
   readonly id: number;
 }
 
 class FindUserByIDDto {
-  @ApiProperty({example:1})
+  @ApiProperty({example:1, nullable: false, required: true, title: "Уникальный идентификатор пользователя"})
   readonly id: number;
 }
 
 class FindUserByPhonePasswordRoleDto {
-  @ApiProperty({example:"88005553535"})
+  @ApiProperty({example:"89049221829", nullable: false, required: true, title: "Мобильный номер пользователя"})
   readonly mobile: string;
-  @ApiProperty({example:"123"})
+  @ApiProperty({example:'qwerty123', nullable: false, required: true, title: "Пароль пользователя"})
   readonly password: string;
-  @ApiProperty({example:"Passenger", enum: ['Driver', 'Passenger']})
+  @ApiProperty({example:"passenger", enum: ['driver', 'passenger'], required: true, title: "Роль пользователя"})
   readonly role: string;
 }
 
 class UpdateUserByIDDto {
-  @ApiProperty({example:1})
+  @ApiProperty({example:1, nullable: false, required: true, title: "Уникальный идентификатор пользователя"})
   readonly id: number;
-  @ApiProperty({example:true})
+  @ApiProperty({example:true, nullable: false, required: true, title: "Включён ли пользователь"})
   readonly enabled: boolean;
-  @ApiProperty({example:"John"})
+  @ApiProperty({example:"John", nullable: false, required: true, title: "Имя пользователя"})
   readonly name: string;
-  @ApiProperty({example:"123"})
+  @ApiProperty({example:"123", nullable: false, required: true, title: "Пароль пользователя"})
   readonly password: string;
-  @ApiProperty({example:"123"})
+  @ApiProperty({example:"89193153735", nullable: false, required: true, title: "Мобильный номер пользователя"})
   readonly mobile: string;
-  @ApiProperty()
+  @ApiProperty({example:`{'simpleText': "hello world"}`, nullable: false, required: true, title: "Дополнительные данные"})
   readonly payload: string;
 }
 
 
 class findDriverByIDDto {
-  @ApiProperty({example:1})
+  @ApiProperty({example:1, nullable: false, required: true, title: "Уникальный идентификатор водителя"})
   readonly id: number;
 }
 
 class FindPassengerByIDDto {
-  @ApiProperty({example:1})
+  @ApiProperty({example:1, nullable: false, required: true, title: "Уникальный идентификатор пассажира"})
   readonly id: number;
 }
 
@@ -93,7 +93,6 @@ export class AppController {
   @Post('/findPassengerByID')
   @ApiOperation({summary: 'Поиск пассажира по ID'})
   async findPassengerByID(@Body() findPassengerByIDDto: FindPassengerByIDDto): Promise<User> {
-
 
     let result = (await this.userService.find({id: String(findPassengerByIDDto.id), role: "passenger"})).pop();
 
@@ -131,7 +130,7 @@ export class AppController {
 
 
   @Post('/updateUserByID')
-  @ApiOperation({ summary: 'Обновление даннных пользователя по ID', description: "Необходимо, чтобы все поля были заполненны" })
+  @ApiOperation({ summary: 'Обновление даннных пользователя по ID', description: "Необходимо, чтобы все поля были заполнены!!!" })
   updateUserByID(@Body() updateUserByIDDto: UpdateUserByIDDto): Promise<User> {
     return this.userService
       .findOne(String(updateUserByIDDto.id))
