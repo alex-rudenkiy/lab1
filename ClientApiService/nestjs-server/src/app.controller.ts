@@ -64,6 +64,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post('/registration')
+  @ApiOperation({ summary: 'Регистрация' })
   registration(@Body() registrationDto: RegistrationDto): Promise<string> {
     return axios
       .post('http://localhost:4001/createUser', {
@@ -76,6 +77,7 @@ export class AppController {
   }
 
   @Post('/authentication')
+  @ApiOperation({ summary: 'Авторизация' })
   async authentication(
       @Body() authenticationDto: AuthenticationDto,
   ): Promise<string> {
@@ -87,7 +89,7 @@ export class AppController {
         })).data;
 
     if (result.length == 0) {
-      throw new HttpException('Ошибка при вводе мобильного номера или пароля!', HttpStatus.CONFLICT);
+      throw new HttpException('Ошибка при вводе мобильного номера или пароля!', HttpStatus.UNAUTHORIZED);
     }
 
     return JSON.stringify(result);
@@ -103,6 +105,7 @@ export class AppController {
 
 
   @Post('/findTaxi')
+  @ApiOperation({ summary: 'Заказ случайного такси' })
   async findTaxi(@Body() findTaxiDto: FindTaxiDto): Promise<any> {
     if ((await this.checkPassengerExistInDataBase(findTaxiDto.passengerID)) == false)
       throw new HttpException('Пассажир с таким ID не существует!', HttpStatus.CONFLICT);
@@ -215,6 +218,7 @@ export class AppController {
 
 
   @Post('/getCurrentOrderInfo')
+  @ApiOperation({ summary: 'Получить сведения о заказе' })
   async getCurrentOrderInfo(@Body() getCurrentOrderInfoDto: GetCurrentOrderInfo): Promise<string> {
     const omitDeep = require("omit-deep-lodash");
 
