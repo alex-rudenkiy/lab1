@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+
+  dbpostgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  dbredis:
+    image: redis
+    restart: always
+    volumes:
+     - ./storage/redis/data:/data
+    ports:
+     - 6379:6379
+
+  clientapiservice:
+    image: taxi-platform/client-api-service
+    ports:
+      - "4003:4003"
+
+  driverapiservice:
+    image: taxi-platform/driver-api-service
+    ports:
+      - "4005:4005"
+
+  userservice:
+    image: taxi-platform/user-service
+    ports:
+      - "4001:4001"
+
+  costcalcservice:
+    image: taxi-platform/cost-calculator-service
+    ports:
+      - "4000:4000"
+
+  orderservice:
+    image: taxi-platform/order-service
+    ports:
+      - "4004:4004"
+
+  securitybridge:
+    image: taxi-platform/security-bridge
+    ports:
+      - "4006:4006"
+
+  trackingservice:
+    image: taxi-platform/tracking-service
+    ports:
+      - "4002:4002"
+

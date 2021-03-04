@@ -11,10 +11,10 @@ import { Connection } from 'typeorm';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'dbpostgres',
       port: 5432,
       username: 'postgres',
-      password: 'pass',
+      password: 'postgres',
       database: 'postgres',
       entities: [User],
       synchronize: true,

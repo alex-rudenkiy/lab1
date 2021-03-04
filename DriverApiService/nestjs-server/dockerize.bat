@@ -1,0 +1,1 @@
+docker build -t taxi-platform/driver-api-service .

@@ -7,8 +7,8 @@ import { stringify } from 'querystring';
 
 @Controller()
 export class AppController {
-  private passengerServiceEndpoint: string = "http://localhost:4003";
-  private driverServiceEndpoint: string = "http://localhost:4005";
+  private passengerServiceEndpoint: string = "http://clientapiservice:4003";
+  private driverServiceEndpoint: string = "http://driverapiservice:4005";
 
   constructor(private readonly appService: AppService, private jwtService: JwtService) {
   }

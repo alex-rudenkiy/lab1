@@ -80,7 +80,7 @@ export class AppController {
   })
   registration(@Body() registrationDto: RegistrationDto): Promise<string> {
     return axios
-      .post('http://localhost:4001/createUser', {
+      .post('http://userservice:4001/createUser', {
         ...registrationDto,
         ...{
           role: 'driver',
@@ -100,7 +100,7 @@ export class AppController {
       @Body() authenticationDto: AuthenticationDto,
   ): Promise<string> {
     let result = (await axios
-        .post('http://localhost:4001/findUserByPhonePasswordRole', {
+        .post('http://userservice:4001/findUserByPhonePasswordRole', {
           ...authenticationDto,
           ...{role: 'driver'},
         })).data;
@@ -114,7 +114,7 @@ export class AppController {
 
   async checkDriverExistInDataBase(id: number): Promise<boolean> {
     return (
-      (await axios.post('http://localhost:4001/findDriverByID', { id: id })).data[
+      (await axios.post('http://userservice:4001/findDriverByID', { id: id })).data[
         'id'
       ] == id
     );
@@ -131,7 +131,7 @@ export class AppController {
 
     return axios
       .post(
-        'http://localhost:4004/findActualOrderByDriverID',
+        'http://orderservice:4004/findActualOrderByDriverID',
         getOrderByDriverIDDto,
       )
       .then((v) => JSON.stringify(v.data));
@@ -148,7 +148,7 @@ export class AppController {
 
     return axios
         .post(
-            'http://localhost:4002/setPosition',
+            'http://trackingservice:4002/setPosition',
             {
               trackerID: updatePositionDto.trackerID,
               position: updatePositionDto.position
@@ -168,7 +168,7 @@ export class AppController {
     //console.log(finishOrderDto);
 
     const findedOrder = (
-      await axios.post('http://localhost:4004/findOrderByParams', {
+      await axios.post('http://orderservice:4004/findOrderByParams', {
         driver: finishOrderDto.driverId,
         enabled: true,
       })
@@ -183,7 +183,7 @@ export class AppController {
     try{
     result = JSON.stringify(
         (
-            await axios.post('http://localhost:4004/disableOrderByID', {
+            await axios.post('http://orderservice:4004/disableOrderByID', {
               orderID: findedOrder['id'],
             })
         ).data,

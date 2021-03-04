@@ -104,7 +104,7 @@ export class AppController {
   async findDriverByID(@Body() findDriverByIDDto: findDriverByIDDto): Promise<User> {
 
     const f = (
-        await axios.post('http://localhost:4004/findOrderByParams', {
+        await axios.post('http://orderservice:4004/findOrderByParams', {
           driver: findDriverByIDDto.id,
           enabled: true
         })

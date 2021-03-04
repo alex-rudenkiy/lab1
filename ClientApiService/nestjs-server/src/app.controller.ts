@@ -67,7 +67,7 @@ export class AppController {
   @ApiOperation({ summary: 'Регистрация' })
   registration(@Body() registrationDto: RegistrationDto): Promise<string> {
     return axios
-      .post('http://localhost:4001/createUser', {
+      .post('http://userservice:4001/createUser', {
         ...registrationDto,
         ...{
           role: 'passenger',
@@ -83,7 +83,7 @@ export class AppController {
   ): Promise<string> {
 
     let result = (await axios
-        .post('http://localhost:4001/findUserByPhonePasswordRole', {
+        .post('http://userservice:4001/findUserByPhonePasswordRole', {
           ...authenticationDto,
           ...{role: 'passenger'},
         })).data;
@@ -97,7 +97,7 @@ export class AppController {
 
   async checkPassengerExistInDataBase(id: number): Promise<boolean> {
     return (
-        (await axios.post('http://localhost:4001/findPassengerByID', { id: id })).data[
+        (await axios.post('http://userservice:4001/findPassengerByID', { id: id })).data[
             'id'
             ] == id
     );
@@ -112,21 +112,21 @@ export class AppController {
 
 
     let result = null;
-    const v = (await axios.post('http://localhost:4002/getAllActualPositions')).data;
+    const v = (await axios.post('http://trackingservice:4002/getAllActualPositions')).data;
 
     if(v.length==0){
       throw new HttpException('Свободных таксистов нет :(', HttpStatus.CONFLICT);
     }
 
-    const c = (await axios.post('http://localhost:4000/getCost', {
-      ...{ fromPosition: findTaxiDto.fromPosition },
-      ...{ toPosition: findTaxiDto.toPosition },
+    const c = (await axios.post('http://costcalcservice:4000/getCost', {
+      ...{ fromPosition:  findTaxiDto.fromPosition  },
+      ...{ toPosition:    findTaxiDto.toPosition    },
     })).data;
 
 
     for(const a of v) {
 
-      const t = (await axios.post('http://localhost:4001/findDriverByID', {id: a['trackerID']})).data;
+      const t = (await axios.post('http://userservice:4001/findDriverByID', {id: a['trackerID']})).data;
 
       console.log(t['isFree']);
 
@@ -142,7 +142,7 @@ export class AppController {
 
 
         result = (
-            await axios.post('http://localhost:4004/createOrder', {
+            await axios.post('http://orderservice:4004/createOrder', {
               driverID: a['trackerID'],
               passengerID: findTaxiDto.passengerID,
               cost: Math.round(c),
@@ -190,7 +190,7 @@ export class AppController {
   ): Promise<string> {
 
     const findedOrder = (
-        await axios.post('http://localhost:4004/findOrderByParams', {
+        await axios.post('http://orderservice:4004/findOrderByParams', {
           passenger: finishOrderDto.userID,
           enabled: true,
         })
@@ -205,7 +205,7 @@ export class AppController {
     try{
       result = JSON.stringify(
           (
-              await axios.post('http://localhost:4004/disableOrderByID', {
+              await axios.post('http://orderservice:4004/disableOrderByID', {
                 orderID: findedOrder['id'],
               })
           ).data,
@@ -223,7 +223,7 @@ export class AppController {
     const omitDeep = require("omit-deep-lodash");
 
       let findedOrder = (
-        await axios.post('http://localhost:4004/findOrderByParams', {
+        await axios.post('http://orderservice:4004/findOrderByParams', {
           passenger: getCurrentOrderInfoDto.passengerID,
           enabled: true,
         })

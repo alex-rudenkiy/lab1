@@ -6,7 +6,7 @@ import { RedisModule } from 'nestjs-redis';
 @Module({
   imports: [
     RedisModule.register({
-      url: 'redis://127.0.0.1:6379/4',
+      url: 'redis://dbredis:6379/4',
     }),
   ],
   controllers: [AppController],
