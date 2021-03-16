@@ -11,7 +11,7 @@ import { Connection } from 'typeorm';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'dbpostgres',
+      host: 'localhost', //dbpostgres
       port: 5432,
       username: 'postgres',
       password: 'postgres',

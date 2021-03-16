@@ -56,7 +56,7 @@ export class AppController {
     o.passenger = await this.userService.findOne(
       String(createOrderDto.passengerID),
     );
-    console.log(createOrderDto.driverID);
+    console.log(createOrderDto);
 
     o.driver = await this.userService.findOne(String(createOrderDto.driverID));
 

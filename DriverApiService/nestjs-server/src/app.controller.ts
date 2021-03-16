@@ -12,6 +12,17 @@ import { IsMobilePhone, IsNotEmpty, IsPhoneNumber } from 'class-validator';
 import axios from 'axios';
 import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 
+/*
+let userserviceURL: string = "userservice";
+let orderserviceURL: string = "orderservice";
+let costcalcserviceURL: string = "costcalcservice";
+let trackingserviceURL: string = "trackingservice";
+*/
+let userserviceURL: string = "localhost";
+let orderserviceURL: string = "localhost";
+let costcalcserviceURL: string = "localhost";
+let trackingserviceURL: string = "localhost";
+
 class RegistrationDto {
   @IsNotEmpty()
   @ApiProperty({ example: 'Ivan', nullable: false, type: String })
@@ -39,13 +50,13 @@ class AuthenticationDto {
 class GetOrderByDriverIDDto {
   @IsNotEmpty()
   @ApiProperty({ example: 7, nullable: false, type: Number })
-  driverID: number;
+  userId: number;
 }
 
 class FinishOrderDto {
   @IsNotEmpty()
   @ApiProperty({ example: 7, nullable: false, type: Number })
-  driverId: number;
+  userId: number;
 }
 
 class Point {
@@ -63,7 +74,7 @@ class Point {
 class updatePositionDto {
   @IsNotEmpty()
   @ApiProperty({ example: 7, nullable: false, type: Number })
-  trackerID: number;
+  userId: number;
   @IsNotEmpty()
   @ApiProperty({ example: new Point(5, 3), nullable: false, type: Point })
   position: Point;
@@ -80,7 +91,7 @@ export class AppController {
   })
   registration(@Body() registrationDto: RegistrationDto): Promise<string> {
     return axios
-      .post('http://userservice:4001/createUser', {
+      .post('http://'+userserviceURL+':4001/createUser', {
         ...registrationDto,
         ...{
           role: 'driver',
@@ -100,7 +111,7 @@ export class AppController {
       @Body() authenticationDto: AuthenticationDto,
   ): Promise<string> {
     let result = (await axios
-        .post('http://userservice:4001/findUserByPhonePasswordRole', {
+        .post('http://'+userserviceURL+':4001/findUserByPhonePasswordRole', {
           ...authenticationDto,
           ...{role: 'driver'},
         })).data;
@@ -114,7 +125,7 @@ export class AppController {
 
   async checkDriverExistInDataBase(id: number): Promise<boolean> {
     return (
-      (await axios.post('http://userservice:4001/findDriverByID', { id: id })).data[
+      (await axios.post('http://'+userserviceURL+':4001/findDriverByID', { id: id })).data[ //userservice
         'id'
       ] == id
     );
@@ -125,13 +136,13 @@ export class AppController {
   async getOrderByDriverID(
     @Body() getOrderByDriverIDDto: GetOrderByDriverIDDto,
   ): Promise<string> {
-    if ((await this.checkDriverExistInDataBase(getOrderByDriverIDDto.driverID)) == false)
+    if ((await this.checkDriverExistInDataBase(getOrderByDriverIDDto.userId)) == false)
       throw new HttpException('Водитель с таким ID не найден!', HttpStatus.CONFLICT);
 
 
     return axios
       .post(
-        'http://orderservice:4004/findActualOrderByDriverID',
+        'http://'+orderserviceURL+':4004/findActualOrderByDriverID',
         getOrderByDriverIDDto,
       )
       .then((v) => JSON.stringify(v.data));
@@ -142,19 +153,26 @@ export class AppController {
   async updatePosition(
       @Body() updatePositionDto: updatePositionDto,
   ): Promise<string> {
-    if ((await this.checkDriverExistInDataBase(updatePositionDto.trackerID)) == false)
-      throw new HttpException('Водитель с таким ID не найден!', HttpStatus.CONFLICT);
+    let result;
+    try {
+      console.log(updatePositionDto);
+      if ((await this.checkDriverExistInDataBase(updatePositionDto.userId)) == false)
+        throw new HttpException('Водитель с таким ID не найден!', HttpStatus.CONFLICT);
 
 
-    return axios
-        .post(
-            'http://trackingservice:4002/setPosition',
-            {
-              trackerID: updatePositionDto.trackerID,
-              position: updatePositionDto.position
-            },
-        )
-        .then((v) => JSON.stringify(v.data));
+      result = axios
+          .post(
+              'http://'+trackingserviceURL+':4002/setPosition',//trackingservice
+              {
+                trackerID: updatePositionDto.userId,
+                position: updatePositionDto.position
+              },
+          )
+          .then((v) => JSON.stringify(v.data));
+    }catch (e){
+      result = e;
+    }
+    return result;
   }
 
   @Post('/finishOrder')
@@ -162,28 +180,26 @@ export class AppController {
   async finishOrder(
     @Body() finishOrderDto: FinishOrderDto,
   ): Promise<string> {
-    if ((await this.checkDriverExistInDataBase(finishOrderDto.driverId)) == false)
+    if ((await this.checkDriverExistInDataBase(finishOrderDto.userId)) == false)
       throw new HttpException('Водитель с таким ID не найден!', HttpStatus.CONFLICT);
 
-    //console.log(finishOrderDto);
+    console.log(finishOrderDto.userId);
 
     const findedOrder = (
-      await axios.post('http://orderservice:4004/findOrderByParams', {
-        driver: finishOrderDto.driverId,
+      await axios.post('http://'+orderserviceURL+':4004/findOrderByParams', {
+        driver: finishOrderDto.userId,
         enabled: true,
       })
     ).data;
 
-/*
     console.log(findedOrder);
     console.log(findedOrder['id']);
-*/
 
     let result;
     try{
     result = JSON.stringify(
         (
-            await axios.post('http://orderservice:4004/disableOrderByID', {
+            await axios.post('http://'+orderserviceURL+':4004/disableOrderByID', {
               orderID: findedOrder['id'],
             })
         ).data,

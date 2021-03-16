@@ -13,7 +13,7 @@ import { UsersService } from './database/entity/user/users.service';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'dbpostgres',
+      host: 'localhost',//dbpostgres
       port: 5432,
       username: 'postgres',
       password: 'postgres',

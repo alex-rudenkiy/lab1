@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import {IsMobilePhone, IsNotEmpty} from "class-validator";
+import {ApiProperty} from "@nestjs/swagger";
 
 describe('AppController', () => {
   let appController: AppController;
@@ -15,8 +17,14 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Hello World!"', async () => {
+      let data ={
+        name: "Ivan",
+        mobile: "880005553535",
+        password: "qwerty"
+      }
+
+      expect(await appController.registration(data)).toContain('"name":"Ivan"');
     });
   });
 });

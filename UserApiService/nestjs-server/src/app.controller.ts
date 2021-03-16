@@ -64,12 +64,24 @@ class FindPassengerByIDDto {
   readonly id: number;
 }
 
+/*
+let userserviceURL: string = "userservice";
+let orderserviceURL: string = "orderservice";
+let costcalcserviceURL: string = "costcalcservice";
+let trackingserviceURL: string = "trackingservice";
+*/
+let userserviceURL: string = "localhost";
+let orderserviceURL: string = "localhost";
+let costcalcserviceURL: string = "localhost";
+let trackingserviceURL: string = "localhost";
+
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly userService: UsersService,
   ) {}
+
 
   @Post('/createUser')
   @ApiOperation({ summary: 'Создание пользователя' })
@@ -93,9 +105,12 @@ export class AppController {
   @Post('/findPassengerByID')
   @ApiOperation({summary: 'Поиск пассажира по ID'})
   async findPassengerByID(@Body() findPassengerByIDDto: FindPassengerByIDDto): Promise<User> {
-
-    let result = (await this.userService.find({id: String(findPassengerByIDDto.id), role: "passenger"})).pop();
-
+    let result;
+    try {
+      result = (await this.userService.find({id: String(findPassengerByIDDto.id), role: "passenger"})).pop();
+    }catch (e){
+      result = e;
+    }
     return result;
   }
 
@@ -104,7 +119,7 @@ export class AppController {
   async findDriverByID(@Body() findDriverByIDDto: findDriverByIDDto): Promise<User> {
 
     const f = (
-        await axios.post('http://orderservice:4004/findOrderByParams', {
+        await axios.post('http://'+orderserviceURL+':4004/findOrderByParams', {
           driver: findDriverByIDDto.id,
           enabled: true
         })

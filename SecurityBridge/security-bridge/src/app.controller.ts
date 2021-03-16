@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Req, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -7,8 +7,8 @@ import { stringify } from 'querystring';
 
 @Controller()
 export class AppController {
-  private passengerServiceEndpoint: string = "http://clientapiservice:4003";
-  private driverServiceEndpoint: string = "http://driverapiservice:4005";
+  private passengerServiceEndpoint: string = "http://localhost:4003";//clientapiservice
+  private driverServiceEndpoint: string = "http://localhost:4005";//driverapiservice
 
   constructor(private readonly appService: AppService, private jwtService: JwtService) {
   }
@@ -40,10 +40,11 @@ export class AppController {
       let result = (await axios.post(`${authFullEndpoint}/authentication`, data)).data[0];
       console.log(result);
 
-      const payload = { name: result['name'], id: result['id'] };
+      const payload = { name: result['name'], userId: result['id'] };
 
       return {
-        access_token: this.jwtService.sign(payload, { expiresIn: '2 days' }),
+        ... result.data,
+        ... { access_token: this.jwtService.sign(payload, { expiresIn: '2 days' }) }
       };
     }catch(e){
       return e;
@@ -68,16 +69,18 @@ export class AppController {
     }
 
     try{
-      let result = (await axios.post(`${authFullEndpoint}/registration`, data));
-      console.log(result);
+      let result = (await axios.post(`${authFullEndpoint}/registration`, data)).data;
 
-      const payload = { name: result['name'], id: result['id'] };
+      const payload = { name: result['name'], userId: result['id'] };
+      console.log(payload);
 
       return {
-        access_token: this.jwtService.sign(payload),
+        ... result.data,
+        ... { access_token: this.jwtService.sign(payload, { expiresIn: '2 days' }) }
       };
     }catch(e){
-      return e;
+      //console.log(e.response);
+      throw new HttpException(e.response.data, e.response.status);
     }
   }
 
@@ -99,19 +102,25 @@ export class AppController {
         alert("Нет таких значений");
     }
 
-    const { access_token, ...srcdata } = data;
+    const { access_token, ... srcdata } = data;
 
+    let userTokenPayload;
     try{
       this.jwtService.verify(access_token);
+      userTokenPayload = this.jwtService.decode(access_token);
+      console.log(userTokenPayload);
     }catch (e) {
       return e;
     }
 
+
+    console.log(userTokenPayload.userId);
       try{
-        let result = (await axios.post(`${authFullEndpoint}${request.originalUrl.replace(`/${params['authEndpoint']}`,"")}`, srcdata)).data;
-        console.log(result);
+        let result = (await axios.post(`${authFullEndpoint}${request.originalUrl.replace(`/${params['authEndpoint']}`,"")}`, {...{userId:userTokenPayload.userId}, ...srcdata})).data;
+        //console.log(result);
         return result;
       }catch(e){
+        //console.log(e);
         return e;
       }
 
